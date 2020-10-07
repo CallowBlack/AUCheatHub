@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="user\main.cpp">
+      <Filter>user</Filter>
+    </ClCompile>
+    <ClCompile Include="framework\dllmain.cpp">
+      <Filter>framework</Filter>
+    </ClCompile>
+    <ClCompile Include="framework\helpers.cpp">
+      <Filter>framework</Filter>
+    </ClCompile>
+    <ClCompile Include="framework\il2cpp-init.cpp">
+      <Filter>framework</Filter>
+    </ClCompile>
+    <ClCompile Include="framework\pch-il2cpp.cpp">
+      <Filter>framework</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="user\main.h">
+      <Filter>user</Filter>
+    </ClInclude>
+    <ClInclude Include="appdata\il2cpp-api-functions.h">
+      <Filter>appdata</Filter>
+    </ClInclude>
+    <ClInclude Include="appdata\il2cpp-api-functions-ptr.h">
+      <Filter>appdata</Filter>
+    </ClInclude>
+    <ClInclude Include="appdata\il2cpp-functions.h">
+      <Filter>appdata</Filter>
+    </ClInclude>
+    <ClInclude Include="appdata\il2cpp-types.h">
+      <Filter>appdata</Filter>
+    </ClInclude>
+    <ClInclude Include="appdata\il2cpp-types-ptr.h">
+      <Filter>appdata</Filter>
+    </ClInclude>
+    <ClInclude Include="framework\helpers.h">
+      <Filter>framework</Filter>
+    </ClInclude>
+    <ClInclude Include="framework\il2cpp-appdata.h">
+      <Filter>framework</Filter>
+    </ClInclude>
+    <ClInclude Include="framework\il2cpp-init.h">
+      <Filter>framework</Filter>
+    </ClInclude>
+    <ClInclude Include="framework\pch-il2cpp.h">
+      <Filter>framework</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="appdata">
+      <UniqueIdentifier>{745ad488-92f8-4dc3-b54f-47a50343016d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="framework">
+      <UniqueIdentifier>{0697a2c0-b3a0-48f9-9d5c-4e5d3dbb7a85}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="user">
+      <UniqueIdentifier>{1bda7733-1c56-4408-9f95-378c9406897d}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
