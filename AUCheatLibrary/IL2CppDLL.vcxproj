@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="user\CheatTable.cpp" />
     <ClCompile Include="framework\dllmain.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
@@ -38,9 +39,9 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="hack.cpp" />
+    <ClCompile Include="user\hack.cpp" />
     <ClCompile Include="user\main.cpp" />
-    <ClCompile Include="util.cpp" />
+    <ClCompile Include="user\utils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="appdata\il2cpp-api-functions.h" />
@@ -49,11 +50,13 @@
     <ClInclude Include="appdata\il2cpp-metadata-version.h" />
     <ClInclude Include="appdata\il2cpp-types-ptr.h" />
     <ClInclude Include="appdata\il2cpp-types.h" />
+    <ClInclude Include="user\CheatTable.h" />
     <ClInclude Include="framework\helpers.h" />
     <ClInclude Include="framework\il2cpp-appdata.h" />
     <ClInclude Include="framework\il2cpp-init.h" />
     <ClInclude Include="framework\pch-il2cpp.h" />
-    <ClInclude Include="hack.h" />
+    <ClInclude Include="user\hack.h" />
+    <ClInclude Include="user\utils.h" />
     <ClInclude Include="user\main.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
