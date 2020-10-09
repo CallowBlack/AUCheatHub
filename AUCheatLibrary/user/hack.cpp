@@ -37,8 +37,20 @@ void SetGhostState(bool state)
         printf("Error: Fake Impostor %s\n", sLocalPlayerFailed);
         return;
     }
+    auto gameBase = GetModuleBaseAddress(GetCurrentProcessId(), L"GameAssembly.dll");
+    String* layerName;
+    if (state) {
+        layerName = *(String**)(gameBase + 0x14779D4); // app::String* "Ghost"
+    }
+    else {
+        layerName = *(String**)(gameBase + 0x147759C); // app::String* "Players"
+    }
+    auto gameObject = Component_get_gameObject((Component*)GetLocalPlayer(), 0);
+    auto layer = LayerMask_NameToLayer(layerName, 0);
+    GameObject_set_layer(gameObject, layer, 0);
     auto playerInfo = GetLocalPlayer()->fields.FMDMBBNEAHH;
-    playerInfo->fields.DMFDFKEJHLH = !playerInfo->fields.DMFDFKEJHLH;
+    playerInfo->fields.DMFDFKEJHLH = state;
+    printf("Status: Ghost state %s", state ? "enabled" : "disabled");
 }
 
 void SetInfectedState(bool state)
