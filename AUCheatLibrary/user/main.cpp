@@ -29,6 +29,15 @@ GameData_CBOMPDNBEIF* FindTask(GameData_IHEKEPMDGIJ *playerInfo, uint32_t id) {
     return NULL;
 }
 
+
+void WriteMemory(void* pBase, char* pBuffer, size_t szBuffer) {
+    auto chBase = (char*)pBase;
+    for (size_t i = 0; i < szBuffer; i++) {
+        chBase[i] = pBuffer[i];
+    }
+}
+
+
 LRESULT __declspec(dllexport)__stdcall CALLBACK KeyboardProc(int nCode, WPARAM wParam, LPARAM lParam)
 {
     if (HC_ACTION == nCode && wParam == WM_KEYDOWN)
@@ -49,18 +58,7 @@ LRESULT __declspec(dllexport)__stdcall CALLBACK KeyboardProc(int nCode, WPARAM w
                     playerInfo->fields.DMFDFKEJHLH = !playerInfo->fields.DMFDFKEJHLH;
                 }
                 else if (key == '6') {
-                    auto shipStatic = reinterpret_cast<ShipStatus__StaticFields*>(il2cpp_class_get_static_field_data((Il2CppClass*)*ShipStatus__TypeInfo));
-                    auto ship = shipStatic->Instance;
-                    auto rooms = ship->fields.MapPrefab->fields.infectedOverlay->fields.rooms;
-                    for (unsigned int i = 0; i < rooms->max_length; i++) {
-                        if (rooms->vector[i]->fields.door != NULL) {
-                            il2cppi_log_write("Door closing.");
-                            try {
-                                ShipStatus_RpcCloseDoorsOfType(ship, rooms->vector[i]->fields.room, NULL);
-                            }
-                            catch (...) {}
-                        }       
-                    }
+                    WriteMemory((char*)MapRoom_SabotageDoors + 0xcf, (char*)"\x00\x00", 2);
                 }
                 else if (key == '7') {
                     auto players = control->AllPlayerControls;
@@ -68,6 +66,7 @@ LRESULT __declspec(dllexport)__stdcall CALLBACK KeyboardProc(int nCode, WPARAM w
                     for (int i = 0; i < players->fields._size; i++) {
                         il2cppi_log_write("Player killing.");
                         if (players->fields._items->vector[i]->fields.PlayerId != player->fields.PlayerId) {
+                            std::cout << "Player " << (char*)&players->fields._items->vector[i]->fields.nameText->fields.Text->fields.m_firstChar << ";" << std::endl;
                             try{ 
                                 PlayerControl_RpcMurderPlayer(player, players->fields._items->vector[i], NULL); 
                             }
@@ -118,26 +117,33 @@ void UpdateInfo() {
     auto shipPrefabs = client->fields.ShipPrefabs;
     std::cout << "ShipPrefabs:    " << shipPrefabs << std::endl;
 
-    auto shipStatus = shipPrefabs->fields._items->vector[0];
-    std::cout << "ShipStatus:     " << shipPrefabs << std::endl;
-
-    auto mapPrefab = shipStatus->fields.MapPrefab;
-    std::cout << "MapPrefab:      " << shipPrefabs << std::endl;
-
-    auto infectedOverlay = mapPrefab->fields.infectedOverlay;
-    std::cout << "InfectedOverlay:" << shipPrefabs << std::endl;
-
-    auto first_room = infectedOverlay->fields.rooms->vector[0];
-    std::cout << "Room:           " << first_room << std::endl;
-
     control = reinterpret_cast<PlayerControl__StaticFields*>(il2cpp_class_get_static_field_data((Il2CppClass*)*PlayerControl__TypeInfo));
     std::cout << "PlayerControl:  " << control->LocalPlayer << std::endl;
+
+    std::cout << "Kill method: " << PlayerControl_RpcMurderPlayer << std::endl;
+    std::cout << "InnerNet:    " << InnerNetClient_StartRpcImmediately << std::endl;
+    if (control->LocalPlayer != NULL) {
+        auto shipStaticAddress = il2cpp_class_get_static_field_data((Il2CppClass*)*ShipStatus__TypeInfo);
+        std::cout << "Ship static address calculated." << std::endl;
+        if (shipStaticAddress == NULL) {
+            std::cout << "Ship doesn't exist." << std::endl;
+        }
+        else {
+            auto shipStatic = reinterpret_cast<ShipStatus__StaticFields*>(shipStaticAddress);
+            auto ship = shipStatic->Instance;
+            std::cout << "Ship:     " << ship << std::endl;
+
+            auto mapBehavior = reinterpret_cast<MapBehaviour__StaticFields*>(il2cpp_class_get_static_field_data((Il2CppClass*)*MapBehaviour__TypeInfo))->Instance;
+            std::cout << "Map behavior: " << mapBehavior << std::endl;
+        }
+    }
 }
 
 void Run()
 {
     // If you would like to write to a log file, specify the name above and use il2cppi_log_write()
     // il2cppi_log_write("Startup");
+
     il2cppi_new_console();
     UpdateInfo();
 
