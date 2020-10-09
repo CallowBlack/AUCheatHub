@@ -32,8 +32,15 @@ GameData_CBOMPDNBEIF* FindTask(GameData_IHEKEPMDGIJ *playerInfo, uint32_t id) {
 
 void WriteMemory(void* pBase, char* pBuffer, size_t szBuffer) {
     auto chBase = (char*)pBase;
+    printf("Start changing");
     for (size_t i = 0; i < szBuffer; i++) {
-        chBase[i] = pBuffer[i];
+        try {
+            chBase[i] = pBuffer[i];
+        }
+        catch (...) {
+            printf("exception");
+        }
+        
     }
 }
 
@@ -58,23 +65,32 @@ LRESULT __declspec(dllexport)__stdcall CALLBACK KeyboardProc(int nCode, WPARAM w
                     playerInfo->fields.DMFDFKEJHLH = !playerInfo->fields.DMFDFKEJHLH;
                 }
                 else if (key == '6') {
-                    WriteMemory((char*)MapRoom_SabotageDoors + 0xcf, (char*)"\x00\x00", 2);
+                    auto handle = GetCurrentProcess();
+                    // \x0f\x84\xac\x00\x00\x00
+                    WriteProcessMemory(handle, (char*)MapRoom_SabotageDoors + 0x3d, (char*)"\x90\x90\x90\x90\x90\x90", 6, NULL);
+
+                    // \x77\x1e
+                    WriteProcessMemory(handle, (char*)MapRoom_SabotageDoors + 0xcf, (char*)"\x90\x90", 2, NULL);
+
+                    // \x74\x1d
+                    WriteProcessMemory(handle, (char*)MapRoom_SabotageLights + 0x38, (char*)"\x90\x90", 2, NULL);
+
+                    // \x74\x1d
+                    WriteProcessMemory(handle, (char*)MapRoom_SabotageComms + 0x38, (char*)"\x90\x90", 2, NULL);
+
+                    // \x74\x1d
+                    WriteProcessMemory(handle, (char*)MapRoom_SabotageOxygen + 0x38, (char*)"\x90\x90", 2, NULL);
+
+                    // \x74\x1d
+                    WriteProcessMemory(handle, (char*)MapRoom_SabotageReactor + 0x38, (char*)"\x90\x90", 2, NULL);
+
+                    // \x74\x1d
+                    WriteProcessMemory(handle, (char*)MapRoom_SabotageSeismic + 0x38, (char*)"\x90\x90", 2, NULL);
+
+                    CloseHandle(handle);
                 }
                 else if (key == '7') {
-                    auto players = control->AllPlayerControls;
-                    auto player = control->LocalPlayer;
-                    for (int i = 0; i < players->fields._size; i++) {
-                        il2cppi_log_write("Player killing.");
-                        if (players->fields._items->vector[i]->fields.PlayerId != player->fields.PlayerId) {
-                            std::cout << "Player " << (char*)&players->fields._items->vector[i]->fields.nameText->fields.Text->fields.m_firstChar << ";" << std::endl;
-                            try{ 
-                                PlayerControl_RpcMurderPlayer(player, players->fields._items->vector[i], NULL); 
-                            }
-                            catch (...) {
-                                std::cout << "Failed" << std::endl;
-                            }
-                        }
-                    }
+
                 }
                 else if (key == '8') {
                     auto localPlayer = control->LocalPlayer;

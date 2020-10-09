@@ -16,6 +16,12 @@
     <ClCompile Include="framework\pch-il2cpp.cpp">
       <Filter>framework</Filter>
     </ClCompile>
+    <ClCompile Include="hack.cpp">
+      <Filter>user</Filter>
+    </ClCompile>
+    <ClCompile Include="util.cpp">
+      <Filter>user</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="user\main.h">
@@ -50,6 +56,9 @@
     </ClInclude>
     <ClInclude Include="framework\pch-il2cpp.h">
       <Filter>framework</Filter>
+    </ClInclude>
+    <ClInclude Include="hack.h">
+      <Filter>user</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
