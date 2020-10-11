@@ -12,6 +12,8 @@ using namespace app;
 
 const char* sLocalPlayerFailed = "failed: Player doesn't exist";
 
+int localNetId = 0;
+
 void SetUnlimitSabbotage(bool state)
 {
     auto handle = GetCurrentProcess();
@@ -50,7 +52,7 @@ void SetGhostState(bool state)
     GameObject_set_layer(gameObject, layer, 0);
     auto playerInfo = GetLocalPlayer()->fields.FMDMBBNEAHH;
     playerInfo->fields.DMFDFKEJHLH = state;
-    printf("Status: Ghost state %s", state ? "enabled" : "disabled");
+    printf("Status: Ghost state %s\n", state ? "enabled" : "disabled");
 }
 
 void SetInfectedState(bool state)
@@ -63,6 +65,22 @@ void SetInfectedState(bool state)
     // FMDMBBNEAHH -> PlayerData
     auto playerInfo = GetLocalPlayer()->fields.FMDMBBNEAHH;
 
+    localNetId = GetLocalPlayer()->fields._.NetId;
+    if (state)
+    {
+        auto playerStatic = reinterpret_cast<PlayerControl__StaticFields*>(il2cpp_class_get_static_field_data((Il2CppClass*)*PlayerControl__TypeInfo));
+        auto allControls = playerStatic->AllPlayerControls;
+        for (int i = 0; i < allControls->fields._size; i++) {
+            auto player = allControls->fields._items->vector[i];
+            auto playerNetId = player->fields._.NetId;
+            if (player->fields.FMDMBBNEAHH->fields.LODLBBJNGKB && playerNetId != localNetId) {
+                GetLocalPlayer()->fields._.NetId = playerNetId;
+            }
+        }
+    }
+    else {
+        GetLocalPlayer()->fields._.NetId = localNetId;
+    }
     // LODLBBJNGKB -> InfectedState
     playerInfo->fields.LODLBBJNGKB = state;
     
@@ -88,3 +106,22 @@ void CompleteAllTasks()
     }
 }
 
+void SetKillNoReload(bool state) {
+    if (!IsLocalPlayerExist()) {
+        printf("Error: Kill no reload %s\n", sLocalPlayerFailed);
+        return;
+    }
+    auto handle = GetCurrentProcess();
+    WriteProcessMemory(handle, (char*)PlayerControl_MurderPlayer + 0x238, state ? "\x90\x90\x90\x90\x90" : "\xe8\xa3\x2d\x00\x00", 5, NULL);
+    printf("Status: Kill no-reload was %s", state ? "enabled" : "disabled");
+    CloseHandle(handle);
+}
+
+void GetAllPlayersNetID() {
+    auto playerStatic = reinterpret_cast<PlayerControl__StaticFields*>(il2cpp_class_get_static_field_data((Il2CppClass*)*PlayerControl__TypeInfo));
+    auto allControls = playerStatic->AllPlayerControls;
+    for (int i = 0; i < allControls->fields._size; i++) {
+        auto player = allControls->fields._items->vector[i];
+        printf("Player with id %d have netid %d\n", player->fields.PlayerId, player->fields._.NetId);
+    }
+}

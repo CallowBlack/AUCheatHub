@@ -19,11 +19,35 @@
     <ClCompile Include="user\hack.cpp">
       <Filter>user</Filter>
     </ClCompile>
-    <ClCompile Include="user\CheatTable.cpp">
-      <Filter>user</Filter>
-    </ClCompile>
     <ClCompile Include="user\utils.cpp">
       <Filter>user</Filter>
+    </ClCompile>
+    <ClCompile Include="user\ImGUI\imgui.cpp">
+      <Filter>user\ImGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="user\ImGUI\imgui_demo.cpp">
+      <Filter>user\ImGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="user\ImGUI\imgui_draw.cpp">
+      <Filter>user\ImGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="user\ImGUI\imgui_impl_dx11.cpp">
+      <Filter>user\ImGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="user\ImGUI\imgui_impl_win32.cpp">
+      <Filter>user\ImGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="user\ImGUI\imgui_widgets.cpp">
+      <Filter>user\ImGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="user\GUI\cheat-manager.cpp">
+      <Filter>user\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="user\GUI\game-overlay.cpp">
+      <Filter>user\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="user\GUI\CheatModule\SimpleItem.cpp">
+      <Filter>user\GUI\CheatModule</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -66,8 +90,41 @@
     <ClInclude Include="user\utils.h">
       <Filter>user</Filter>
     </ClInclude>
-    <ClInclude Include="user\CheatTable.h">
-      <Filter>user</Filter>
+    <ClInclude Include="user\ImGUI\imconfig.h">
+      <Filter>user\ImGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="user\ImGUI\imgui.h">
+      <Filter>user\ImGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="user\ImGUI\imgui_impl_dx11.h">
+      <Filter>user\ImGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="user\ImGUI\imgui_impl_win32.h">
+      <Filter>user\ImGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="user\ImGUI\imgui_internal.h">
+      <Filter>user\ImGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="user\ImGUI\imstb_rectpack.h">
+      <Filter>user\ImGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="user\ImGUI\imstb_textedit.h">
+      <Filter>user\ImGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="user\ImGUI\imstb_truetype.h">
+      <Filter>user\ImGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="user\GUI\cheat-manager.h">
+      <Filter>user\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="user\GUI\game-overlay.h">
+      <Filter>user\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="user\GUI\CheatModule\ICheatModule.h">
+      <Filter>user\GUI\CheatModule</Filter>
+    </ClInclude>
+    <ClInclude Include="user\GUI\CheatModule\SimpleItem.h">
+      <Filter>user\GUI\CheatModule</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -79,6 +136,15 @@
     </Filter>
     <Filter Include="user">
       <UniqueIdentifier>{8157c2c7-8cc5-4f87-83a1-59e0bcc2fb31}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="user\ImGUI">
+      <UniqueIdentifier>{731c2f9e-ae77-4c5e-a0c2-713b379e0d34}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="user\GUI">
+      <UniqueIdentifier>{0422a915-7fef-4232-8d53-b17737348847}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="user\GUI\CheatModule">
+      <UniqueIdentifier>{8b209d2c-584b-4718-b4a4-4fc33322dc73}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

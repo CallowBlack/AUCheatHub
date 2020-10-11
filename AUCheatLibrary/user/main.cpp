@@ -6,69 +6,30 @@
 
 #include "helpers.h"
 
-#include "CheatTable.h"
+// Cheat functionality
+#include "utils.h"
 #include "hack.h"
+
+// GUI
+#include "GUI/cheat-manager.h"
+#include "GUI/game-overlay.h"
+#include "GUI/CheatModule/SimpleItem.h"
 
 using namespace app;
 
 // Set the name of your log file here
 extern const LPCWSTR LOG_FILE = L"il2cpp-log.txt";
 
-// Hook for keyboard
-HHOOK keyboardHook;
-
-bool enabled = false;
-
-CheatTable cheatTable;
-
-LRESULT __declspec(dllexport)__stdcall CALLBACK KeyboardProc(int nCode, WPARAM wParam, LPARAM lParam)
-{
-    if (HC_ACTION == nCode && wParam == WM_KEYDOWN)
-    {
-        auto key = ((tagKBDLLHOOKSTRUCT*)lParam)->vkCode;
-        if (enabled) {
-            cheatTable.RunCheat(key);
-        }
-        if (key == VK_F1) {
-            enabled = !enabled;
-            printf("Status: Cheat keys was %s\n", enabled ? "enabled" : "disabled");
-        }
-    }
-
-    LRESULT RetVal = CallNextHookEx(keyboardHook, nCode, wParam, lParam);
-    return  RetVal;
-}
-
-
 void Run()
 {
     il2cppi_new_console();
 
-    cheatTable = {
-        {'1', "Infection State", SetInfectedState, true},
-        {'2', "Ghost State",  SetGhostState, true},
-        {'3', "Sabbotage no-reload", SetUnlimitSabbotage, true},
-        {'4', "Complete all task", CompleteAllTasks, false}
-    };
-    // Setting low level keyboard hook
-    keyboardHook = SetWindowsHookEx(WH_KEYBOARD_LL, (HOOKPROC)KeyboardProc, NULL, 0);
-    if (keyboardHook == NULL) {
-        std::cout << "Keyboard hook failed!" << std::endl;
-        std::cout << GetLastError() << std::endl;
-    }
+	AddModule(std::make_shared<SimpleItem>((char*)"Infection State", SetInfectedState, IsLocalPlayerExist, true));
+	AddModule(std::make_shared<SimpleItem>((char*)"Ghost State", SetGhostState, IsLocalPlayerExist, true));
+	AddModule(std::make_shared<SimpleItem>((char*)"Sabbotage no-reload", SetUnlimitSabbotage, IsLocalPlayerExist, true));
+	AddModule(std::make_shared<SimpleItem>((char*)"Complete all task", CompleteAllTasks, IsLocalPlayerExist, false));
+	AddModule(std::make_shared<SimpleItem>((char*)"Kill no-reload", SetKillNoReload, IsLocalPlayerExist, true));
 
-    BOOL bRet;
-    MSG msg;
-    while ((bRet = GetMessage(&msg, NULL, 0, 0)) != 0)
-    {
-        if (bRet == -1)
-        {
-            std::cout << "Handle message error." << std::endl;
-        }
-        else
-        {
-            TranslateMessage(&msg);
-            DispatchMessage(&msg);
-        }
-    }
+	createOverlay();
+
 }

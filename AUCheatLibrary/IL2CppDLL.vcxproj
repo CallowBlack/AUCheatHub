@@ -19,7 +19,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="user\CheatTable.cpp" />
+    <ClCompile Include="user\GUI\cheat-manager.cpp" />
+    <ClCompile Include="user\GUI\game-overlay.cpp" />
+    <ClCompile Include="user\GUI\CheatModule\SimpleItem.cpp" />
     <ClCompile Include="framework\dllmain.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
@@ -40,6 +42,12 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="user\hack.cpp" />
+    <ClCompile Include="user\ImGUI\imgui.cpp" />
+    <ClCompile Include="user\ImGUI\imgui_demo.cpp" />
+    <ClCompile Include="user\ImGUI\imgui_draw.cpp" />
+    <ClCompile Include="user\ImGUI\imgui_impl_dx11.cpp" />
+    <ClCompile Include="user\ImGUI\imgui_impl_win32.cpp" />
+    <ClCompile Include="user\ImGUI\imgui_widgets.cpp" />
     <ClCompile Include="user\main.cpp" />
     <ClCompile Include="user\utils.cpp" />
   </ItemGroup>
@@ -50,12 +58,23 @@
     <ClInclude Include="appdata\il2cpp-metadata-version.h" />
     <ClInclude Include="appdata\il2cpp-types-ptr.h" />
     <ClInclude Include="appdata\il2cpp-types.h" />
-    <ClInclude Include="user\CheatTable.h" />
+    <ClInclude Include="user\GUI\cheat-manager.h" />
+    <ClInclude Include="user\GUI\CheatModule\ICheatModule.h" />
+    <ClInclude Include="user\GUI\game-overlay.h" />
+    <ClInclude Include="user\GUI\CheatModule\SimpleItem.h" />
     <ClInclude Include="framework\helpers.h" />
     <ClInclude Include="framework\il2cpp-appdata.h" />
     <ClInclude Include="framework\il2cpp-init.h" />
     <ClInclude Include="framework\pch-il2cpp.h" />
     <ClInclude Include="user\hack.h" />
+    <ClInclude Include="user\ImGUI\imconfig.h" />
+    <ClInclude Include="user\ImGUI\imgui.h" />
+    <ClInclude Include="user\ImGUI\imgui_impl_dx11.h" />
+    <ClInclude Include="user\ImGUI\imgui_impl_win32.h" />
+    <ClInclude Include="user\ImGUI\imgui_internal.h" />
+    <ClInclude Include="user\ImGUI\imstb_rectpack.h" />
+    <ClInclude Include="user\ImGUI\imstb_textedit.h" />
+    <ClInclude Include="user\ImGUI\imstb_truetype.h" />
     <ClInclude Include="user\utils.h" />
     <ClInclude Include="user\main.h" />
   </ItemGroup>
@@ -65,6 +84,7 @@
     <ProjectGuid>{0BC72AE6-3C4E-452A-92FD-B7BCC02A436D}</ProjectGuid>
     <RootNamespace>AUCheatLibrary</RootNamespace>
     <ProjectName>AUCheatLibrary</ProjectName>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
     <!--<WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>-->
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -118,6 +138,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
+    <OutDir>$(SolutionDir)\bin\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -143,6 +164,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
+      <AdditionalDependencies>lib/detours.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -164,6 +186,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
+      <AdditionalDependencies>lib\detours.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
