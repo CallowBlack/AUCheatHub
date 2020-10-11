@@ -12,6 +12,7 @@ void Render()
 {
 	if (!isShowMain)
 		return;
+	ImGui::SetNextWindowSize(ImVec2(600, 300), ImGuiCond_FirstUseEver);
 
 	if (!ImGui::Begin("Cheat Manager"))
 	{
@@ -19,6 +20,9 @@ void Render()
 		return;
 	}
 
+	ImGui::Checkbox("Block game keyboard, mouse", &isBlocked);
+
+	ImGui::Spacing();
 	for (auto cmIter = cheatModules.begin(); cmIter < cheatModules.end(); cmIter++) {
 		auto pModule = *cmIter;
 		ImGui::PushID(pModule->GetName());
