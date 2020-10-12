@@ -19,6 +19,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="user\GUI\CheatModule\DebugModule.cpp" />
+    <ClCompile Include="user\GUI\CheatModule\PlayersModule.cpp" />
     <ClCompile Include="user\GUI\cheat-manager.cpp" />
     <ClCompile Include="user\GUI\game-overlay.cpp" />
     <ClCompile Include="user\GUI\CheatModule\SimpleItem.cpp" />
@@ -58,6 +60,8 @@
     <ClInclude Include="appdata\il2cpp-metadata-version.h" />
     <ClInclude Include="appdata\il2cpp-types-ptr.h" />
     <ClInclude Include="appdata\il2cpp-types.h" />
+    <ClInclude Include="user\GUI\CheatModule\DebugModule.h" />
+    <ClInclude Include="user\GUI\CheatModule\PlayersModule.h" />
     <ClInclude Include="user\GUI\cheat-manager.h" />
     <ClInclude Include="user\GUI\CheatModule\ICheatModule.h" />
     <ClInclude Include="user\GUI\game-overlay.h" />

@@ -43,7 +43,7 @@ HWND window = nullptr;
 IDXGISwapChainPresent fnIDXGISwapChainPresent;
 
 short ioFlag;
-
+ImFont* fontUnicode;
 LRESULT CALLBACK hWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	ImGuiIO& io = ImGui::GetIO();
@@ -76,6 +76,7 @@ HRESULT __stdcall Present(IDXGISwapChain* pChain, UINT SyncInterval, UINT Flags)
 		ImGui::CreateContext();
 		ImGuiIO& io = ImGui::GetIO(); (void)io;
 		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+		fontUnicode = io.Fonts->AddFontFromFileTTF("fonts/arial-unicode.ttf", 16, NULL, io.Fonts->GetGlyphRangesCyrillic());
 		window = sd.OutputWindow;
 		ImGui::StyleColorsDark();
 
@@ -99,10 +100,12 @@ HRESULT __stdcall Present(IDXGISwapChain* pChain, UINT SyncInterval, UINT Flags)
 	ImGui_ImplWin32_NewFrame();
 
 	ImGui::NewFrame();
-
+	ImGui::PushFont(fontUnicode);
+	ImGui::StyleColorsDark();
 	// cheat-manager render function
 	Render();
-
+	ImGui::ShowDemoWindow();
+	ImGui::PopFont();
 	ImGui::EndFrame();
 	ImGui::Render();
 

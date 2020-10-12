@@ -13,6 +13,9 @@ SimpleItem::SimpleItem(char* name, void* func, isEnabledFunc checkFunc, bool has
 
 void SimpleItem::OnRender()
 {
+	if (hasState && state && !checkEnabledFunc())
+		state = false;
+
 	ImGui::Text("%s", name);
 	if (hasState) {
 		ImGui::SameLine(200);
@@ -25,10 +28,8 @@ void SimpleItem::OnRender()
 	else {
 		ImGui::SameLine(230);
 	}
-	
-	std::cout << checkEnabledFunc() << std::endl;
+
 	if (ImGui::Button(hasState ? "Enable" : "Activate") && checkEnabledFunc()) {
-		printf("Button clicked.");
 		if (hasState)
 		{
 			state = !state;

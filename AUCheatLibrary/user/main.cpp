@@ -14,6 +14,7 @@
 #include "GUI/cheat-manager.h"
 #include "GUI/game-overlay.h"
 #include "GUI/CheatModule/SimpleItem.h"
+#include "GUI/CheatModule/PlayersModule.h"
 
 using namespace app;
 
@@ -22,14 +23,16 @@ extern const LPCWSTR LOG_FILE = L"il2cpp-log.txt";
 
 void Run()
 {
+	setlocale(LC_ALL, "");
     il2cppi_new_console();
 
-	AddModule(std::make_shared<SimpleItem>((char*)"Infection State", SetInfectedState, IsLocalPlayerExist, true));
-	AddModule(std::make_shared<SimpleItem>((char*)"Ghost State", SetGhostState, IsLocalPlayerExist, true));
-	AddModule(std::make_shared<SimpleItem>((char*)"Sabbotage no-reload", SetUnlimitSabbotage, IsLocalPlayerExist, true));
-	AddModule(std::make_shared<SimpleItem>((char*)"Complete all task", CompleteAllTasks, IsLocalPlayerExist, false));
-	AddModule(std::make_shared<SimpleItem>((char*)"Kill no-reload", SetKillNoReload, IsLocalPlayerExist, true));
-
+	AddModule(std::make_shared<SimpleItem>((char*)"Infection State", SetInfectedState, IsGameStarted, true));
+	AddModule(std::make_shared<SimpleItem>((char*)"Ghost State", SetGhostState, IsGameStarted, true));
+	AddModule(std::make_shared<SimpleItem>((char*)"Sabbotage no-reload", SetUnlimitSabbotage, IsGameStarted, true));
+	AddModule(std::make_shared<SimpleItem>((char*)"Complete all task", CompleteAllTasks, IsGameStarted, false));
+	AddModule(std::make_shared<SimpleItem>((char*)"Kill no-reload", SetKillNoReload, IsGameStarted, true));
+	AddModule(std::make_shared<PlayersModule>());
+	
 	createOverlay();
 
 }

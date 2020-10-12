@@ -99,8 +99,7 @@ void CompleteAllTasks()
     auto tasks = localPlayer->fields.myTasks->fields;
     for (uint32_t i = 0; i < tasks._size; i++) {
         auto taskInfo = FindTask(playerInfo, i);
-        if (!taskInfo->fields.MEAOHEIBBKN) {
-            std::cout << "Completing task #" << i << std::endl;
+        if (taskInfo != nullptr && !taskInfo->fields.MEAOHEIBBKN) {
             PlayerControl_RpcCompleteTask(localPlayer, i, NULL);
         }
     }

@@ -49,6 +49,12 @@
     <ClCompile Include="user\GUI\CheatModule\SimpleItem.cpp">
       <Filter>user\GUI\CheatModule</Filter>
     </ClCompile>
+    <ClCompile Include="user\GUI\CheatModule\PlayersModule.cpp">
+      <Filter>user\GUI\CheatModule</Filter>
+    </ClCompile>
+    <ClCompile Include="user\GUI\CheatModule\DebugModule.cpp">
+      <Filter>user\GUI\CheatModule</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="user\main.h">
@@ -124,6 +130,12 @@
       <Filter>user\GUI\CheatModule</Filter>
     </ClInclude>
     <ClInclude Include="user\GUI\CheatModule\SimpleItem.h">
+      <Filter>user\GUI\CheatModule</Filter>
+    </ClInclude>
+    <ClInclude Include="user\GUI\CheatModule\PlayersModule.h">
+      <Filter>user\GUI\CheatModule</Filter>
+    </ClInclude>
+    <ClInclude Include="user\GUI\CheatModule\DebugModule.h">
       <Filter>user\GUI\CheatModule</Filter>
     </ClInclude>
   </ItemGroup>

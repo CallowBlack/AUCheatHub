@@ -2,11 +2,12 @@
 #include "cheat-manager.h"
 
 #include "ImGUI/imgui.h"
-
+#include "GUI/CheatModule/DebugModule.h"
 static bool isShowMain = false;
 static bool isBlocked = true;
 static bool isShowOptions = false;
 static std::vector<std::shared_ptr<ICheatModule>> cheatModules{};
+static DebugModule dmodule{};
 
 void Render()
 {
@@ -31,6 +32,16 @@ void Render()
 	}
 
 	ImGui::End();
+
+	if (!ImGui::Begin("Debug"))
+	{
+		ImGui::End();
+		return;
+	}
+	
+	dmodule.OnRender();
+	ImGui::End();
+	
 }
 
 short OnKeyUp(DWORD key)

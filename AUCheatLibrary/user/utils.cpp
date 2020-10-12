@@ -1,12 +1,25 @@
 #include "pch-il2cpp.h"
 #include "utils.h"
 #include <TlHelp32.h>
+#include <iostream>
 
 PlayerControl__StaticFields* playerStatic;
 
 bool IsLocalPlayerExist()
 {
 	return GetLocalPlayer() != nullptr;
+}
+
+bool IsGameStarted()
+{
+    auto clientStatic = reinterpret_cast<AmongUsClient__StaticFields*>(il2cpp_class_get_static_field_data((Il2CppClass*)*AmongUsClient__TypeInfo));
+    return clientStatic->Instance->fields._.GameState == InnerNetClient_IFLBIJFJPMK__Enum_Started;
+}
+
+int GetGameState()
+{
+    auto clientStatic = reinterpret_cast<AmongUsClient__StaticFields*>(il2cpp_class_get_static_field_data((Il2CppClass*)*AmongUsClient__TypeInfo));
+    return (int)clientStatic->Instance->fields._.GameState;
 }
 
 PlayerControl* GetLocalPlayer()
