@@ -30,6 +30,11 @@ PlayerControl* GetLocalPlayer()
 	return playerStatic->LocalPlayer;
 }
 
+AmongUsClient* GetClient() {
+    auto clientStatic = reinterpret_cast<AmongUsClient__StaticFields*>(il2cpp_class_get_static_field_data((Il2CppClass*)*AmongUsClient__TypeInfo));
+    return clientStatic->Instance;
+}
+
 GameData_CBOMPDNBEIF* FindTask(GameData_IHEKEPMDGIJ* playerInfo, uint32_t id) {
     auto tasks = playerInfo->fields.IHACFCJPFCF;
     for (int i = 0; i < tasks->fields._size; i++) {
@@ -94,11 +99,21 @@ bool EnabledButton(bool enabled, const char* text, const ImVec2& size) {
 
 
 ClientData* GetPlayerClientById(int id) {
-    auto clientStatic = reinterpret_cast<AmongUsClient__StaticFields*>(il2cpp_class_get_static_field_data((Il2CppClass*)*AmongUsClient__TypeInfo));
-    auto clients = clientStatic->Instance->fields._.allClients;
+    auto clients = GetClient()->fields._.allClients;
     for (int i = 0; i < clients->fields._size; i++) {
         if (clients->fields._items->vector[i]->fields.Character->fields.PlayerId == id) {
             return clients->fields._items->vector[i];
+        }
+    }
+    return NULL;
+}
+
+ClientData* GetClientByClientId(int32_t clientId) {
+    auto clients = GetClient()->fields._.allClients;
+    for (int i = 0; i < clients->fields._size; i++) {
+        auto client = clients->fields._items->vector[i];
+        if (client->fields.Id == clientId) {
+            return client;
         }
     }
     return NULL;

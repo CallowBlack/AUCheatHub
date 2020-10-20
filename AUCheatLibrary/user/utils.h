@@ -15,3 +15,4 @@ uintptr_t GetModuleBaseAddress(DWORD procId, const wchar_t* modName);
 bool GetResourceMemory(HINSTANCE hInstance, int resId, LPBYTE& pDest, DWORD& size);
 bool EnabledButton(bool enabled, const char* text, const ImVec2& size);
 ClientData* GetPlayerClientById(int id);
+ClientData* GetClientByClientId(int32_t clientId);

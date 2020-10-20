@@ -22,7 +22,7 @@ struct LocalInfo {
 
     int32_t clientIdToKick;
 
-    uint8_t playerIdToKill;
+    int32_t clientIdToKill;
 
     bool vote;
     uint8_t playerIdToVote;
@@ -46,6 +46,7 @@ void __cdecl PlayerCreate(PlayerControl* player, MethodInfo* method) {
     if (player->fields._.OwnerId == staticClient->Instance->fields._.ClientId) {
         localeInfo->netId = player->fields._.NetId;
         localeInfo->clientId = staticClient->Instance->fields._.ClientId;
+        localeInfo->currentPlayerId = player->fields.PlayerId;
     }
     PlayerControl_Start(player, method);
 }
@@ -57,9 +58,15 @@ int32_t __cdecl GetPing(InnerNetClient* client, MethodInfo* method) {
         localeInfo->clientIdToKick = 0;
     }
 
-    if (localeInfo->playerIdToKill != 0) {
-        KillPlayer(localeInfo->playerIdToKill);
-        localeInfo->playerIdToKill = 0;
+    if (localeInfo->clientIdToKill != 0) {
+        auto localPlayer = GetLocalPlayer();
+        auto tempNetId = localPlayer->fields._.NetId;
+        localPlayer->fields._.NetId = localeInfo->netId;
+
+        KillPlayer(localeInfo->clientIdToKill);
+
+        localPlayer->fields._.NetId = tempNetId;
+        localeInfo->clientIdToKill = 0;
     }
 
     if (localeInfo->vote) {
@@ -96,17 +103,14 @@ void PlayersModule::OnRender()
                 meetingHudStatic = reinterpret_cast<MeetingHud__StaticFields*>(il2cpp_class_get_static_field_data((Il2CppClass*)*MeetingHud__TypeInfo));
             auto clients = gameClient->fields._.allClients;
             auto pcLocal = GetLocalPlayer();
-
-            bool isMeeting = meetingHudStatic->Instance != nullptr &&
-                meetingHudStatic->Instance->fields.FGFCFMNBKON > 0 &&
-                meetingHudStatic->Instance->fields.FGFCFMNBKON < 3;
+            bool isMeeting = meetingHudStatic->Instance != nullptr && Object_1_op_Implicit((Object_1 *)meetingHudStatic->Instance, 0);
 
             bool playerVoted = false;
             if (isMeeting) {
                 auto playerVotes = meetingHudStatic->Instance->fields.FALDLDJHDDJ;
                 for (int i = 0; i < playerVotes->max_length; i++) {
                     auto playerVote = playerVotes->vector[i];
-                    if (playerVote->fields.TargetPlayerId == pcLocal->fields.PlayerId)
+                    if (playerVote->fields.TargetPlayerId == localeInfo->currentPlayerId)
                         playerVoted = playerVote->fields.didVote;
                 }
             }
@@ -115,7 +119,7 @@ void PlayersModule::OnRender()
             ImGui::SetColumnWidth(0, 30);
             ImGui::SetColumnWidth(1, 120);
             ImGui::SetColumnWidth(2, 400);
-            ImGui::SetColumnWidth(3, 300);
+            ImGui::SetColumnWidth(3, 320);
             ImGui::Text("ID"); ImGui::NextColumn();
             ImGui::Text("Name"); ImGui::NextColumn();
             ImGui::Text("Status"); ImGui::NextColumn();
@@ -224,8 +228,8 @@ void PlayersModule::OnRender()
                             }
                             ImGui::SameLine();
 
-                            if (EnabledButton(!isGhost && !isImposter, "Kill", ImVec2(70, 22))) {
-                                localeInfo->playerIdToKill = pcRemote->fields.PlayerId;
+                            if (EnabledButton(!isGhost, "Kill", ImVec2(70, 22))) {
+                                localeInfo->clientIdToKill = pcRemote->fields.PlayerId;
                             }
                         }
                         else {

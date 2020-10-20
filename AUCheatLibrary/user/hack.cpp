@@ -164,7 +164,21 @@ void VoteByPlayer(uint8_t voterPlayerId, int8_t targetPlayerId) {
 }
 
 void KillPlayer(uint8_t playerId) {
-    auto character = GetPlayerClientById(playerId)->fields.Character;
-    SetInfectedNetId();
-    PlayerControl_RpcMurderPlayer(GetLocalPlayer(), character, 0);
+    auto victim = GetPlayerClientById(playerId)->fields.Character;
+    PlayerControl* killer = NULL;
+
+    auto playerStatic = reinterpret_cast<PlayerControl__StaticFields*>(il2cpp_class_get_static_field_data((Il2CppClass*)*PlayerControl__TypeInfo));
+    auto allControls = playerStatic->AllPlayerControls;
+
+    for (int i = 0; i < allControls->fields._size; i++) {
+        auto player = allControls->fields._items->vector[i];
+        auto playerNetId = player->fields._.NetId;
+        if (player->fields.FMDMBBNEAHH->fields.LODLBBJNGKB) {
+            killer = player;
+            break;
+        }
+    }
+
+    PlayerControl_MurderPlayer(killer, victim, 0);
+    PlayerControl_RpcMurderPlayer(killer, victim, 0);
 }
