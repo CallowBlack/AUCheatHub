@@ -4,7 +4,7 @@
 #include "ImGUI/imgui.h"
 #include "GUI/CheatModule/DebugModule.h"
 static bool isShowMain = false;
-static bool isBlocked = true;
+static bool isBlocked = false;
 static bool isShowOptions = false;
 static std::vector<std::shared_ptr<ICheatModule>> cheatModules{};
 static DebugModule dmodule{};
@@ -35,6 +35,7 @@ void Render()
 
 	if (!ImGui::Begin("Debug"))
 	{
+		dmodule.OnRender();
 		ImGui::End();
 		return;
 	}
@@ -62,8 +63,4 @@ short OnKeyUp(DWORD key)
 
 void AddModule(std::shared_ptr<ICheatModule> cheatModule) {
 	cheatModules.push_back(cheatModule);
-}
-
-void ShowOptionWindow() {
-	
 }

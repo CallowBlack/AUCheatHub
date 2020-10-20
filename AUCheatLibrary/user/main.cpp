@@ -3,7 +3,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #include <iostream>
-
+#include <fstream>
 #include "helpers.h"
 
 // Cheat functionality
@@ -21,18 +21,25 @@ using namespace app;
 // Set the name of your log file here
 extern const LPCWSTR LOG_FILE = L"il2cpp-log.txt";
 
-void Run()
+
+void WINAPI Run(LPVOID phModule)
 {
 	setlocale(LC_ALL, "");
-    il2cppi_new_console();
+	//il2cppi_new_console();
 
 	AddModule(std::make_shared<SimpleItem>((char*)"Infection State", SetInfectedState, IsGameStarted, true));
 	AddModule(std::make_shared<SimpleItem>((char*)"Ghost State", SetGhostState, IsGameStarted, true));
-	AddModule(std::make_shared<SimpleItem>((char*)"Sabbotage no-reload", SetUnlimitSabbotage, IsGameStarted, true));
 	AddModule(std::make_shared<SimpleItem>((char*)"Complete all task", CompleteAllTasks, IsGameStarted, false));
-	AddModule(std::make_shared<SimpleItem>((char*)"Kill no-reload", SetKillNoReload, IsGameStarted, true));
+
+	AddModule(std::make_shared<SimpleItem>((char*)"Sabbotage no-reload", SetUnlimitSabbotage, nullptr, true));
+	AddModule(std::make_shared<SimpleItem>((char*)"Kill no-reload", SetKillNoReload, nullptr, true));
+
 	AddModule(std::make_shared<PlayersModule>());
 	
-	createOverlay();
+	LPBYTE pFont = 0;
+	DWORD dFontSize = 0;
+	GetResourceMemory(*static_cast<HMODULE*>(phModule), 105, pFont, dFontSize);
+	createOverlay(pFont, dFontSize);
 
 }
+

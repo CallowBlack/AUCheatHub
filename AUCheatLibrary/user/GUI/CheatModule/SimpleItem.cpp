@@ -3,6 +3,7 @@
 #include "ImGUI/imgui.h"
 #include <stdio.h>
 #include <iostream>
+#include "utils.h"
 
 static const ImVec4 RED_COLOR = ImVec4(1.0f, 0.1f, 0.1f, 1.0f);
 static const ImVec4 GREEN_COLOR = ImVec4(0.1f, 1.0f, 0.1f, 1.0f);
@@ -13,7 +14,9 @@ SimpleItem::SimpleItem(char* name, void* func, isEnabledFunc checkFunc, bool has
 
 void SimpleItem::OnRender()
 {
-	if (hasState && state && !checkEnabledFunc())
+	bool isAllowed = checkEnabledFunc == NULL ? true : checkEnabledFunc();
+
+	if (hasState && state && !isAllowed)
 		state = false;
 
 	ImGui::Text("%s", name);
@@ -29,7 +32,7 @@ void SimpleItem::OnRender()
 		ImGui::SameLine(230);
 	}
 
-	if (ImGui::Button(hasState ? "Enable" : "Activate") && checkEnabledFunc()) {
+	if (EnabledButton(isAllowed, hasState ? "Enable" : "Activate", ImVec2(0, 0))) {
 		if (hasState)
 		{
 			state = !state;

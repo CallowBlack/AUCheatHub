@@ -60,6 +60,8 @@
     <ClInclude Include="appdata\il2cpp-metadata-version.h" />
     <ClInclude Include="appdata\il2cpp-types-ptr.h" />
     <ClInclude Include="appdata\il2cpp-types.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="user\detours.h" />
     <ClInclude Include="user\GUI\CheatModule\DebugModule.h" />
     <ClInclude Include="user\GUI\CheatModule\PlayersModule.h" />
     <ClInclude Include="user\GUI\cheat-manager.h" />
@@ -81,6 +83,9 @@
     <ClInclude Include="user\ImGUI\imstb_truetype.h" />
     <ClInclude Include="user\utils.h" />
     <ClInclude Include="user\main.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="AUCheatLibrary.rc" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <!--<VCProjectVersion>16.0</VCProjectVersion>-->

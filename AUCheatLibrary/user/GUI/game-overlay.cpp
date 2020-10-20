@@ -2,7 +2,6 @@
 #include "pch-il2cpp.h"
 #include "game-overlay.h"
 
-#include <windows.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <vector>
@@ -43,7 +42,11 @@ HWND window = nullptr;
 IDXGISwapChainPresent fnIDXGISwapChainPresent;
 
 short ioFlag;
+
+LPBYTE pFont;
+DWORD dFontSize;
 ImFont* fontUnicode;
+
 LRESULT CALLBACK hWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	ImGuiIO& io = ImGui::GetIO();
@@ -76,7 +79,10 @@ HRESULT __stdcall Present(IDXGISwapChain* pChain, UINT SyncInterval, UINT Flags)
 		ImGui::CreateContext();
 		ImGuiIO& io = ImGui::GetIO(); (void)io;
 		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-		fontUnicode = io.Fonts->AddFontFromFileTTF("fonts/arial-unicode.ttf", 16, NULL, io.Fonts->GetGlyphRangesCyrillic());
+		if (pFont != NULL)
+			fontUnicode = io.Fonts->AddFontFromMemoryTTF(pFont, dFontSize, 16, NULL, io.Fonts->GetGlyphRangesCyrillic());
+		else
+			fontUnicode = io.FontDefault;
 		window = sd.OutputWindow;
 		ImGui::StyleColorsDark();
 
@@ -104,7 +110,6 @@ HRESULT __stdcall Present(IDXGISwapChain* pChain, UINT SyncInterval, UINT Flags)
 	ImGui::StyleColorsDark();
 	// cheat-manager render function
 	Render();
-	ImGui::ShowDemoWindow();
 	ImGui::PopFont();
 	ImGui::EndFrame();
 	ImGui::Render();
@@ -161,10 +166,11 @@ void retrieveValues()
 	pSwapChain->Release();
 }
 
-void createOverlay()
+void createOverlay(LPBYTE font, DWORD size)
 {
 	//cmenu = cheatMenu;
-
+	pFont = font;
+	dFontSize = size;
 	retrieveValues();
 	detourDirectX();
 }

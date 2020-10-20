@@ -12,11 +12,12 @@ BOOL APIENTRY DllMain( HMODULE hModule,
                        LPVOID lpReserved
                      )
 {
+    HMODULE* phModule = new HMODULE(hModule);
     switch (ul_reason_for_call)
     {
     case DLL_PROCESS_ATTACH:
         init_il2cpp();
-        CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE) Run, NULL, 0, NULL);
+        CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE) Run, (LPVOID)phModule, 0, NULL);
         break;
     case DLL_THREAD_ATTACH:
     case DLL_THREAD_DETACH:

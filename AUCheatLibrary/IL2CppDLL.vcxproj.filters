@@ -138,6 +138,10 @@
     <ClInclude Include="user\GUI\CheatModule\DebugModule.h">
       <Filter>user\GUI\CheatModule</Filter>
     </ClInclude>
+    <ClInclude Include="user\detours.h">
+      <Filter>user</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="appdata">
@@ -158,5 +162,8 @@
     <Filter Include="user\GUI\CheatModule">
       <UniqueIdentifier>{8b209d2c-584b-4718-b4a4-4fc33322dc73}</UniqueIdentifier>
     </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="AUCheatLibrary.rc" />
   </ItemGroup>
 </Project>

@@ -1,2 +1,3 @@
 #pragma once
-void createOverlay();
+#include <windows.h>
+void createOverlay(LPBYTE font, DWORD size);

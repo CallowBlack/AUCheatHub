@@ -55,6 +55,18 @@ void SetGhostState(bool state)
     printf("Status: Ghost state %s\n", state ? "enabled" : "disabled");
 }
 
+void SetInfectedNetId() {
+    auto playerStatic = reinterpret_cast<PlayerControl__StaticFields*>(il2cpp_class_get_static_field_data((Il2CppClass*)*PlayerControl__TypeInfo));
+    auto allControls = playerStatic->AllPlayerControls;
+    for (int i = 0; i < allControls->fields._size; i++) {
+        auto player = allControls->fields._items->vector[i];
+        auto playerNetId = player->fields._.NetId;
+        if (player->fields.FMDMBBNEAHH->fields.LODLBBJNGKB && playerNetId != localNetId) {
+            GetLocalPlayer()->fields._.NetId = playerNetId;
+        }
+    }
+}
+
 void SetInfectedState(bool state)
 {
     if (!IsLocalPlayerExist()) {
@@ -68,23 +80,13 @@ void SetInfectedState(bool state)
     localNetId = GetLocalPlayer()->fields._.NetId;
     if (state)
     {
-        auto playerStatic = reinterpret_cast<PlayerControl__StaticFields*>(il2cpp_class_get_static_field_data((Il2CppClass*)*PlayerControl__TypeInfo));
-        auto allControls = playerStatic->AllPlayerControls;
-        for (int i = 0; i < allControls->fields._size; i++) {
-            auto player = allControls->fields._items->vector[i];
-            auto playerNetId = player->fields._.NetId;
-            if (player->fields.FMDMBBNEAHH->fields.LODLBBJNGKB && playerNetId != localNetId) {
-                GetLocalPlayer()->fields._.NetId = playerNetId;
-            }
-        }
+        SetInfectedNetId();
     }
     else {
         GetLocalPlayer()->fields._.NetId = localNetId;
     }
     // LODLBBJNGKB -> InfectedState
     playerInfo->fields.LODLBBJNGKB = state;
-    
-    printf("State: Fake Impostor %s\n", state ? "enabled" : "disabled");
 }
 
 void CompleteAllTasks()
@@ -123,4 +125,46 @@ void GetAllPlayersNetID() {
         auto player = allControls->fields._items->vector[i];
         printf("Player with id %d have netid %d\n", player->fields.PlayerId, player->fields._.NetId);
     }
+}
+
+void KickPlayer(int32_t clientId) {
+    auto staticClient = reinterpret_cast<AmongUsClient__StaticFields*>(il2cpp_class_get_static_field_data((Il2CppClass*)*AmongUsClient__TypeInfo));
+    auto allClients = staticClient->Instance->fields._.allClients;
+    auto localClientId = staticClient->Instance->fields._.ClientId;
+
+    auto localPlayerControl = reinterpret_cast<PlayerControl__StaticFields*>(il2cpp_class_get_static_field_data((Il2CppClass*)*PlayerControl__TypeInfo))->LocalPlayer;
+    auto startNetId = localPlayerControl->fields._.NetId;
+
+    auto vbsInstance = reinterpret_cast<VoteBanSystem__StaticFields*>(il2cpp_class_get_static_field_data((Il2CppClass*)*VoteBanSystem__TypeInfo))->Instance;
+
+    auto clearSize = allClients->fields._size;
+    for (int i = 0; i < clearSize; i++) {
+        if (clearSize != allClients->fields._size)
+            break;
+
+        auto remoteClient = allClients->fields._items->vector[i];
+        if (remoteClient->fields.Id != clientId &&
+            staticClient->Instance->fields._.HostId != remoteClient->fields.Id) {
+
+            staticClient->Instance->fields._.ClientId = remoteClient->fields.Id;
+            localPlayerControl->fields._.NetId = remoteClient->fields.Character->fields._.NetId;
+            VoteBanSystem_CmdAddVote(vbsInstance, clientId, 0);
+            Sleep(100);
+
+        }
+    }
+
+    staticClient->Instance->fields._.ClientId = localClientId;
+    localPlayerControl->fields._.NetId = startNetId;
+}
+
+void VoteByPlayer(uint8_t voterPlayerId, int8_t targetPlayerId) {
+    auto meetingHudStatic = reinterpret_cast<MeetingHud__StaticFields*>(il2cpp_class_get_static_field_data((Il2CppClass*)*MeetingHud__TypeInfo));
+    MeetingHud_CmdCastVote(meetingHudStatic->Instance, voterPlayerId, targetPlayerId, 0);
+}
+
+void KillPlayer(uint8_t playerId) {
+    auto character = GetPlayerClientById(playerId)->fields.Character;
+    SetInfectedNetId();
+    PlayerControl_RpcMurderPlayer(GetLocalPlayer(), character, 0);
 }

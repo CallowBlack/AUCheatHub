@@ -2,7 +2,9 @@
 #include "PlayersModule.h"
 #include "il2cpp-appdata.h"
 #include "ImGUI/imgui.h"
+
 #include "utils.h"
+#include "hack.h"
 
 #include <string>
 #include <sstream>
@@ -11,39 +13,68 @@
 #include "detours.h"
 
 using namespace app;
+
+struct LocalInfo {
+    uint32_t netId;
+    int32_t clientId;
+
+    uint8_t currentPlayerId;
+
+    int32_t clientIdToKick;
+
+    uint8_t playerIdToKill;
+
+    bool vote;
+    uint8_t playerIdToVote;
+    
+    bool voteAll;
+    uint8_t playerIdToAllVote;
+};
+
 static AmongUsClient__StaticFields* clientStatic = nullptr;
 static const ImVec4 IMPOSTER_COLOR = ImVec4(1.0f, 0.1f, 0.1f, 1.0f);
 static const ImVec4 CHOSEN_COLOR = ImVec4(0.1f, 1.0f, 0.1f, 1.0f);
 static const ImVec4 HOST_COLOR = ImVec4(0.1f, 0.1f, 1.0f, 1.0f);
 static const ImVec4 GHOST_COLOR = ImVec4(0.5f, 0.5f, 0.5f, 1.0f);
 
-static std::shared_ptr<uint32_t> localInetId = std::make_shared<uint32_t>();
-
-void __cdecl OnVoteKick(BanMenu* menu, bool JIBLHOACKOC, MethodInfo* method) {
-    auto selected = menu->fields.selected;
-    auto staticClient = reinterpret_cast<AmongUsClient__StaticFields*>(il2cpp_class_get_static_field_data((Il2CppClass*)*AmongUsClient__TypeInfo));
-    auto local_client = staticClient->Instance->fields._.ClientId;
-    auto allClients = staticClient->Instance->fields._.allClients;
-    for (int i = 1; i < allClients->fields._size; i++) {
-        staticClient->Instance->fields._.ClientId = allClients->fields._items->vector[i]->fields.Id;
-        menu->fields.selected = selected;
-        BanMenu_Kick(menu, JIBLHOACKOC, method);
-    }
-    staticClient->Instance->fields._.ClientId = local_client;
-}
+static Color32__Array* playerColors;
+static MeetingHud__StaticFields* meetingHudStatic = nullptr;
+static std::shared_ptr<LocalInfo> localeInfo = std::make_shared<LocalInfo>(LocalInfo{0});
 
 void __cdecl PlayerCreate(PlayerControl* player, MethodInfo* method) {
     auto staticClient = reinterpret_cast<AmongUsClient__StaticFields*>(il2cpp_class_get_static_field_data((Il2CppClass*)*AmongUsClient__TypeInfo));
     if (player->fields._.OwnerId == staticClient->Instance->fields._.ClientId) {
-        *localInetId = player->fields._.NetId;
+        localeInfo->netId = player->fields._.NetId;
+        localeInfo->clientId = staticClient->Instance->fields._.ClientId;
     }
     PlayerControl_Start(player, method);
 }
 
+int32_t __cdecl GetPing(InnerNetClient* client, MethodInfo* method) {
+    // Kick player while ping is requested
+    if (localeInfo->clientIdToKick != 0){
+        KickPlayer(localeInfo->clientIdToKick);
+        localeInfo->clientIdToKick = 0;
+    }
+
+    if (localeInfo->playerIdToKill != 0) {
+        KillPlayer(localeInfo->playerIdToKill);
+        localeInfo->playerIdToKill = 0;
+    }
+
+    if (localeInfo->vote) {
+        VoteByPlayer(localeInfo->currentPlayerId, localeInfo->playerIdToVote);
+        localeInfo->vote = false;
+    }
+
+    return InnerNetClient_get_Ping(client, method);
+}
+
 PlayersModule::PlayersModule()
 {
-    clientStatic = reinterpret_cast<AmongUsClient__StaticFields*>(il2cpp_class_get_static_field_data((Il2CppClass*)*AmongUsClient__TypeInfo));
+    playerColors = reinterpret_cast<KMGFBENDNFO__StaticFields*>(il2cpp_class_get_static_field_data((Il2CppClass*)*KMGFBENDNFO__TypeInfo))->FOJPMGJFKMB;
 
+    clientStatic = reinterpret_cast<AmongUsClient__StaticFields*>(il2cpp_class_get_static_field_data((Il2CppClass*)*AmongUsClient__TypeInfo));
     DetourTransactionBegin();
     DetourUpdateThread(GetCurrentThread());
     DetourAttach(&(LPVOID&)PlayerControl_Start, (PBYTE)PlayerCreate);
@@ -51,41 +82,72 @@ PlayersModule::PlayersModule()
 
     DetourTransactionBegin();
     DetourUpdateThread(GetCurrentThread());
-    DetourAttach(&(LPVOID&)BanMenu_Kick, (PBYTE)OnVoteKick);
+    DetourAttach(&(LPVOID&)InnerNetClient_get_Ping, (PBYTE)GetPing);
     DetourTransactionCommit();
 }
 
 void PlayersModule::OnRender()
 {
-	auto auClient = clientStatic->Instance;
+	auto gameClient = clientStatic->Instance;
     ImGui::Spacing();
     if (ImGui::CollapsingHeader("Players")) {
         if (IsGameStarted()) {
-            auto clients = auClient->fields._.allClients;
-            auto localClientId = auClient->fields._.ClientId;
-            auto localPlayer = GetLocalPlayer();
+            if (meetingHudStatic == nullptr)
+                meetingHudStatic = reinterpret_cast<MeetingHud__StaticFields*>(il2cpp_class_get_static_field_data((Il2CppClass*)*MeetingHud__TypeInfo));
+            auto clients = gameClient->fields._.allClients;
+            auto pcLocal = GetLocalPlayer();
+
+            bool isMeeting = meetingHudStatic->Instance != nullptr &&
+                meetingHudStatic->Instance->fields.FGFCFMNBKON > 0 &&
+                meetingHudStatic->Instance->fields.FGFCFMNBKON < 3;
+
+            bool playerVoted = false;
+            if (isMeeting) {
+                auto playerVotes = meetingHudStatic->Instance->fields.FALDLDJHDDJ;
+                for (int i = 0; i < playerVotes->max_length; i++) {
+                    auto playerVote = playerVotes->vector[i];
+                    if (playerVote->fields.TargetPlayerId == pcLocal->fields.PlayerId)
+                        playerVoted = playerVote->fields.didVote;
+                }
+            }
+
             ImGui::Columns(4, "Players");
             ImGui::SetColumnWidth(0, 30);
+            ImGui::SetColumnWidth(1, 120);
+            ImGui::SetColumnWidth(2, 400);
+            ImGui::SetColumnWidth(3, 300);
             ImGui::Text("ID"); ImGui::NextColumn();
             ImGui::Text("Name"); ImGui::NextColumn();
             ImGui::Text("Status"); ImGui::NextColumn();
             ImGui::Text("Actions"); ImGui::NextColumn();
+
             ImGui::Separator();
+
             for (int i = 0; i < clients->fields._size; i++) {
-                auto remoteClient = clients->fields._items->vector[i];
-                auto playerControl = remoteClient->fields.Character;
-                auto clientId = remoteClient->fields.Id;
-                bool selected = false;
-                if (remoteClient->fields.InScene) {
+                auto cRemote = clients->fields._items->vector[i];
+                auto pcRemote = cRemote->fields.Character;
+                auto pDataRemote = pcRemote->fields.FMDMBBNEAHH;
+
+                if (cRemote->fields.InScene) {
+
+                    bool isLocal =    localeInfo->clientId == cRemote->fields.Id;
+                    bool isHost =     gameClient->fields._.HostId == cRemote->fields.Id;
+
+                    bool isImposter = pcRemote->fields.FMDMBBNEAHH->fields.LODLBBJNGKB;
+                    bool isGhost =    pcRemote->fields.FMDMBBNEAHH->fields.DMFDFKEJHLH;
+
+                    bool isSelected = (pcRemote->fields._.NetId == pcLocal->fields._.NetId && !isLocal) || 
+                                      (isLocal && localeInfo->netId == pcRemote->fields._.NetId);
+
                     // Player id
                     {
-                        ImGui::Text("%u", playerControl->fields.PlayerId);
+                        ImGui::Text("%u", pcRemote->fields.PlayerId);
                         ImGui::NextColumn();
                     }
 
                     // Player name
                     {
-                        std::u16string source((char16_t*)&playerControl->fields.FMDMBBNEAHH->fields.EKHEPECKPKK->fields.m_firstChar);
+                        std::u16string source((char16_t*)&pcRemote->fields.FMDMBBNEAHH->fields.EKHEPECKPKK->fields.m_firstChar);
                         std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> convert;
                         ImGui::Text(convert.to_bytes(source).c_str());
                         ImGui::NextColumn();
@@ -93,30 +155,49 @@ void PlayersModule::OnRender()
 
                     // Player status
                     {
-                        if (i == 0) {
+                        if (isLocal) {
                             ImGui::Text("Local"); ImGui::SameLine();
                         }
 
-                        if (auClient->fields._.HostId == remoteClient->fields.Id)
+                        if (isHost)
                         {
                             ImGui::TextColored(IMPOSTER_COLOR, "Host"); ImGui::SameLine();
                         }
 
-                        if (playerControl->fields.FMDMBBNEAHH->fields.LODLBBJNGKB)
+                        if (isImposter)
                         {
-                            ImGui::TextColored(IMPOSTER_COLOR, "Imposter"); ImGui::SameLine();
+                            ImGui::TextColored(IMPOSTER_COLOR, "Imposter");
                         }
 
-                        if (playerControl->fields.FMDMBBNEAHH->fields.DMFDFKEJHLH)
+                        if (isGhost)
                         {
                             ImGui::TextColored(GHOST_COLOR, "Ghost"); ImGui::SameLine();
                         }
 
-                        if ((playerControl->fields._.NetId == localPlayer->fields._.NetId && i != 0) || 
-                            (i == 0 && *localInetId == playerControl->fields._.NetId))
+                        if (isSelected)
                         {
-                            ImGui::TextColored(CHOSEN_COLOR, "Chosen"); ImGui::SameLine();
-                            selected = true;
+                            ImGui::TextColored(CHOSEN_COLOR, "Selected"); ImGui::SameLine();
+                        }
+                        
+                        if (isMeeting) {
+                            auto playerVotes = meetingHudStatic->Instance->fields.FALDLDJHDDJ;
+                            bool hasVoted = false;
+                            for (int i = 0; i < playerVotes->max_length; i++) {
+                                auto playerVote = playerVotes->vector[i];
+                                if (playerVote->fields.didVote && !playerVote->fields.isDead && playerVote->fields.votedFor == pcRemote->fields.PlayerId)
+                                {
+                                    if (!hasVoted) {
+                                        ImGui::Text("Voted by:");
+                                        ImGui::SameLine();
+                                        hasVoted = true;
+                                    }
+                                    auto clientData = GetPlayerClientById(playerVote->fields.TargetPlayerId);
+                                    if (clientData) {
+                                        ImGui::Text("%u ", clientData->fields.Character->fields.PlayerId);
+                                        ImGui::SameLine();
+                                    }
+                                }
+                            }
                         }
                         ImGui::Text("");
                         ImGui::NextColumn();
@@ -124,34 +205,50 @@ void PlayersModule::OnRender()
 
                     // Interaction buttons
                     {
-                        ImGui::PushID(playerControl->fields.PlayerId);
-                        if (selected)
-                            ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
-
-                        if (ImGui::Button("Sel") && !selected) {
+                        ImGui::PushID(pcRemote->fields.PlayerId);
+                        if (EnabledButton(!isSelected, "Select", ImVec2(70, 22))) {
+                            pcLocal->fields._.NetId = isLocal ? localeInfo->netId : pcRemote->fields._.NetId;
+                            localeInfo->currentPlayerId = pcRemote->fields.PlayerId;
+                        }
                             
-                            localPlayer->fields._.NetId = (i == 0) ? *localInetId : playerControl->fields._.NetId;
-                        }
-
                         ImGui::SameLine();
-                        if (selected)
-                            ImGui::PopStyleVar();
 
+                        if (!isMeeting) {
+                            if (ImGui::Button("TpTo", ImVec2(70, 22))) {
 
-                        if (i == 0)
-                            ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
+                            }
+                            ImGui::SameLine();
 
-                        if (ImGui::Button("Kick") && i != 0) {
+                            if (ImGui::Button("TpFrom", ImVec2(70, 22))) {
 
+                            }
+                            ImGui::SameLine();
+
+                            if (EnabledButton(!isGhost && !isImposter, "Kill", ImVec2(70, 22))) {
+                                localeInfo->playerIdToKill = pcRemote->fields.PlayerId;
+                            }
+                        }
+                        else {
+                            if (EnabledButton(!isLocal, "Kick", ImVec2(70, 22)))
+                                localeInfo->clientIdToKick = cRemote->fields.Id;
+                            ImGui::SameLine();
+
+                            if (EnabledButton(!isGhost && !playerVoted, "Vote", ImVec2(70, 22))) {
+                                localeInfo->vote = true;
+                                localeInfo->playerIdToVote = pcRemote->fields.PlayerId;
+                            }
+                            ImGui::SameLine();
+
+                            if (EnabledButton(!isGhost, "Vote All", ImVec2(70, 22))) {
+
+                            }
                         }
 
-                        if (i == 0)
-                            ImGui::PopStyleVar();
                         ImGui::PopID();
                     }
 
-
                     ImGui::NextColumn();
+                    ImGui::Separator();
                 }
             }
         }
@@ -167,3 +264,4 @@ char* PlayersModule::GetName()
 {
 	return (char*)"Player List";
 }
+

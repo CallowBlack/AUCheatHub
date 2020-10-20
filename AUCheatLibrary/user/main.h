@@ -4,4 +4,4 @@
 #pragma once
 
 // Custom injected code entry point
-void Run();
+void WINAPI Run(LPVOID phModule);

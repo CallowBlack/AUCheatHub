@@ -3,6 +3,7 @@
 #include <TlHelp32.h>
 #include <iostream>
 
+
 PlayerControl__StaticFields* playerStatic;
 
 bool IsLocalPlayerExist()
@@ -62,4 +63,43 @@ uintptr_t GetModuleBaseAddress(DWORD procId, const wchar_t* modName)
     }
     CloseHandle(hSnap);
     return modBaseAddr;
+}
+
+bool GetResourceMemory(HINSTANCE hInstance, int resId, LPBYTE& pDest, DWORD &size) {
+    HRSRC hResource = FindResource(hInstance, MAKEINTRESOURCE(resId), RT_RCDATA);
+    if (hResource) {
+        HGLOBAL hGlob = LoadResource(hInstance, hResource);
+        if (hGlob) {
+            size = SizeofResource(hInstance, hResource);
+            pDest = (LPBYTE)LockResource(hGlob);
+            if (size > 0 && pDest)
+                return true;
+        }
+    }
+    return false;
+}
+
+bool EnabledButton(bool enabled, const char* text, const ImVec2& size) {
+    bool result = false;
+    if (!enabled)
+        ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
+
+    if (ImGui::Button(text, size) && enabled)
+        result = true;
+
+    if (!enabled)
+        ImGui::PopStyleVar();
+    return result;
+}
+
+
+ClientData* GetPlayerClientById(int id) {
+    auto clientStatic = reinterpret_cast<AmongUsClient__StaticFields*>(il2cpp_class_get_static_field_data((Il2CppClass*)*AmongUsClient__TypeInfo));
+    auto clients = clientStatic->Instance->fields._.allClients;
+    for (int i = 0; i < clients->fields._size; i++) {
+        if (clients->fields._items->vector[i]->fields.Character->fields.PlayerId == id) {
+            return clients->fields._items->vector[i];
+        }
+    }
+    return NULL;
 }
