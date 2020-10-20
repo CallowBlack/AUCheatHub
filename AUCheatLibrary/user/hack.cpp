@@ -3,7 +3,6 @@
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #include <iostream>
-#include "il2cpp-appdata.h"
 
 #include "hack.h"
 #include "utils.h"
@@ -181,4 +180,12 @@ void KillPlayer(uint8_t playerId) {
 
     PlayerControl_MurderPlayer(killer, victim, 0);
     PlayerControl_RpcMurderPlayer(killer, victim, 0);
+}
+
+void SnapToPlayer(PlayerControl* fromCharacter, PlayerControl* toCharacter)
+{
+    auto toTransform = Component_get_transform((Component*)toCharacter, 0);
+    Vector3 to3dPosition = Transform_get_position(toTransform, 0);
+    Vector2 toPosition = Vector2_op_Implicit(to3dPosition, 0);
+    CustomNetworkTransform_RpcSnapTo(fromCharacter->fields.NetTransform, toPosition, 0);
 }

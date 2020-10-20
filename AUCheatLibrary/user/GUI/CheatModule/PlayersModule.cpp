@@ -170,7 +170,7 @@ void PlayersModule::OnRender()
 
                         if (isImposter)
                         {
-                            ImGui::TextColored(IMPOSTER_COLOR, "Imposter");
+                            ImGui::TextColored(IMPOSTER_COLOR, "Imposter"); ImGui::SameLine();
                         }
 
                         if (isGhost)
@@ -182,7 +182,8 @@ void PlayersModule::OnRender()
                         {
                             ImGui::TextColored(CHOSEN_COLOR, "Selected"); ImGui::SameLine();
                         }
-                        
+                        ImGui::Text("");
+
                         if (isMeeting) {
                             auto playerVotes = meetingHudStatic->Instance->fields.FALDLDJHDDJ;
                             bool hasVoted = false;
@@ -202,8 +203,10 @@ void PlayersModule::OnRender()
                                     }
                                 }
                             }
+                            if (hasVoted)
+                                ImGui::Text("");
                         }
-                        ImGui::Text("");
+
                         ImGui::NextColumn();
                     }
 
@@ -219,12 +222,12 @@ void PlayersModule::OnRender()
 
                         if (!isMeeting) {
                             if (ImGui::Button("TpTo", ImVec2(70, 22))) {
-
+                                SnapToPlayer(pcLocal, pcRemote);
                             }
                             ImGui::SameLine();
 
                             if (ImGui::Button("TpFrom", ImVec2(70, 22))) {
-
+                                SnapToPlayer(pcRemote, pcLocal);
                             }
                             ImGui::SameLine();
 
@@ -247,7 +250,6 @@ void PlayersModule::OnRender()
 
                             }
                         }
-
                         ImGui::PopID();
                     }
 
