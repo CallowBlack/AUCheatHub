@@ -118,3 +118,16 @@ ClientData* GetClientByClientId(int32_t clientId) {
     }
     return NULL;
 }
+
+bool IsPlayerVoted(uint8_t playerId) {
+    auto meetingHudStatic = reinterpret_cast<MeetingHud__StaticFields*>(il2cpp_class_get_static_field_data((Il2CppClass*)*MeetingHud__TypeInfo));
+    if (meetingHudStatic->Instance) {
+        auto playerVotes = meetingHudStatic->Instance->fields.FALDLDJHDDJ;
+        for (int i = 0; i < playerVotes->max_length; i++) {
+            auto playerVote = playerVotes->vector[i];
+            if (playerVote->fields.TargetPlayerId == playerId)
+                return playerVote->fields.didVote;
+        }
+    }
+    return false;
+}

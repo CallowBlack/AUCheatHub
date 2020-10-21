@@ -74,22 +74,36 @@ int32_t __cdecl GetPing(InnerNetClient* client, MethodInfo* method) {
         localeInfo->vote = false;
     }
 
+    if (localeInfo->voteAll) {
+        VoteAll(localeInfo->playerIdToAllVote);
+        localeInfo->voteAll = false;
+    }
     return InnerNetClient_get_Ping(client, method);
 }
+
+bool __cdecl KillAnimationCo(KillAnimation_EMBEALNPKLH* corotineInfo, MethodInfo* method) {
+    auto sourceTransform = Component_get_transform((Component*)corotineInfo->fields.source, 0);
+    auto prevPosition = Vector2_op_Implicit(Transform_get_position(sourceTransform, 0), 0);
+    bool result = KillAnimation_EMBEALNPKLH_MoveNext(corotineInfo, method);
+    CustomNetworkTransform_RpcSnapTo(corotineInfo->fields.source->fields.NetTransform, prevPosition, 0);
+    return result;
+}
+
 
 PlayersModule::PlayersModule()
 {
     playerColors = reinterpret_cast<KMGFBENDNFO__StaticFields*>(il2cpp_class_get_static_field_data((Il2CppClass*)*KMGFBENDNFO__TypeInfo))->FOJPMGJFKMB;
-
     clientStatic = reinterpret_cast<AmongUsClient__StaticFields*>(il2cpp_class_get_static_field_data((Il2CppClass*)*AmongUsClient__TypeInfo));
-    DetourTransactionBegin();
-    DetourUpdateThread(GetCurrentThread());
-    DetourAttach(&(LPVOID&)PlayerControl_Start, (PBYTE)PlayerCreate);
+    DetourTransactionBegin(); DetourUpdateThread(GetCurrentThread());
+    DetourAttach(&(LPVOID&)KillAnimation_EMBEALNPKLH_MoveNext, (PBYTE)KillAnimationCo);
     DetourTransactionCommit();
 
-    DetourTransactionBegin();
-    DetourUpdateThread(GetCurrentThread());
+    DetourTransactionBegin(); DetourUpdateThread(GetCurrentThread());
     DetourAttach(&(LPVOID&)InnerNetClient_get_Ping, (PBYTE)GetPing);
+    DetourTransactionCommit();
+
+    DetourTransactionBegin(); DetourUpdateThread(GetCurrentThread());
+    DetourAttach(&(LPVOID&)PlayerControl_Start, (PBYTE)PlayerCreate);
     DetourTransactionCommit();
 }
 
@@ -101,20 +115,13 @@ void PlayersModule::OnRender()
         if (IsGameStarted()) {
             if (meetingHudStatic == nullptr)
                 meetingHudStatic = reinterpret_cast<MeetingHud__StaticFields*>(il2cpp_class_get_static_field_data((Il2CppClass*)*MeetingHud__TypeInfo));
-            auto clients = gameClient->fields._.allClients;
-            auto pcLocal = GetLocalPlayer();
-            bool isMeeting = meetingHudStatic->Instance != nullptr && Object_1_op_Implicit((Object_1 *)meetingHudStatic->Instance, 0);
-
-            bool playerVoted = false;
-            if (isMeeting) {
-                auto playerVotes = meetingHudStatic->Instance->fields.FALDLDJHDDJ;
-                for (int i = 0; i < playerVotes->max_length; i++) {
-                    auto playerVote = playerVotes->vector[i];
-                    if (playerVote->fields.TargetPlayerId == localeInfo->currentPlayerId)
-                        playerVoted = playerVote->fields.didVote;
-                }
-            }
-
+            
+            auto clients       = gameClient->fields._.allClients;
+            auto pcLocal       = GetLocalPlayer();
+            bool isMeeting     = meetingHudStatic->Instance != nullptr && Object_1_op_Implicit((Object_1 *)meetingHudStatic->Instance, 0);
+            bool isLocalGhost  = GetPlayerClientById(localeInfo->currentPlayerId)->fields.Character->fields.FMDMBBNEAHH->fields.DMFDFKEJHLH;
+            bool isPlayerVoted = isMeeting && IsPlayerVoted(localeInfo->currentPlayerId);
+            
             ImGui::Columns(4, "Players");
             ImGui::SetColumnWidth(0, 30);
             ImGui::SetColumnWidth(1, 120);
@@ -182,19 +189,18 @@ void PlayersModule::OnRender()
                         {
                             ImGui::TextColored(CHOSEN_COLOR, "Selected"); ImGui::SameLine();
                         }
-                        ImGui::Text("");
 
                         if (isMeeting) {
                             auto playerVotes = meetingHudStatic->Instance->fields.FALDLDJHDDJ;
-                            bool hasVoted = false;
+                            bool hasVotes = false;
                             for (int i = 0; i < playerVotes->max_length; i++) {
                                 auto playerVote = playerVotes->vector[i];
                                 if (playerVote->fields.didVote && !playerVote->fields.isDead && playerVote->fields.votedFor == pcRemote->fields.PlayerId)
                                 {
-                                    if (!hasVoted) {
+                                    if (!hasVotes) {
                                         ImGui::Text("Voted by:");
                                         ImGui::SameLine();
-                                        hasVoted = true;
+                                        hasVotes = true;
                                     }
                                     auto clientData = GetPlayerClientById(playerVote->fields.TargetPlayerId);
                                     if (clientData) {
@@ -203,10 +209,9 @@ void PlayersModule::OnRender()
                                     }
                                 }
                             }
-                            if (hasVoted)
-                                ImGui::Text("");
                         }
 
+                        ImGui::Text("");
                         ImGui::NextColumn();
                     }
 
@@ -240,14 +245,15 @@ void PlayersModule::OnRender()
                                 localeInfo->clientIdToKick = cRemote->fields.Id;
                             ImGui::SameLine();
 
-                            if (EnabledButton(!isGhost && !playerVoted, "Vote", ImVec2(70, 22))) {
+                            if (EnabledButton(!isGhost && !isPlayerVoted && !isLocalGhost, "Vote", ImVec2(70, 22))) {
                                 localeInfo->vote = true;
                                 localeInfo->playerIdToVote = pcRemote->fields.PlayerId;
                             }
                             ImGui::SameLine();
 
                             if (EnabledButton(!isGhost, "Vote All", ImVec2(70, 22))) {
-
+                                localeInfo->voteAll = true;
+                                localeInfo->playerIdToAllVote = pcRemote->fields.PlayerId;
                             }
                         }
                         ImGui::PopID();

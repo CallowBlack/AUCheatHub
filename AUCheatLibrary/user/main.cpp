@@ -25,7 +25,7 @@ extern const LPCWSTR LOG_FILE = L"il2cpp-log.txt";
 void WINAPI Run(LPVOID phModule)
 {
 	setlocale(LC_ALL, "");
-	//il2cppi_new_console();
+	il2cppi_new_console();
 
 	AddModule(std::make_shared<SimpleItem>((char*)"Infection State", SetInfectedState, IsGameStarted, true));
 	AddModule(std::make_shared<SimpleItem>((char*)"Ghost State", SetGhostState, IsGameStarted, true));

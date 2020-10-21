@@ -162,6 +162,18 @@ void VoteByPlayer(uint8_t voterPlayerId, int8_t targetPlayerId) {
     MeetingHud_CmdCastVote(meetingHudStatic->Instance, voterPlayerId, targetPlayerId, 0);
 }
 
+void VoteAll(int8_t targetPlayerId) {
+    auto meetingHudStatic = reinterpret_cast<MeetingHud__StaticFields*>(il2cpp_class_get_static_field_data((Il2CppClass*)*MeetingHud__TypeInfo));
+    auto staticClient     = reinterpret_cast<AmongUsClient__StaticFields*>(il2cpp_class_get_static_field_data((Il2CppClass*)*AmongUsClient__TypeInfo));
+    auto allClient        = staticClient->Instance->fields._.allClients;
+    for (int i = 0; i < allClient->fields._size; i++) {
+        auto clientCharacter = allClient->fields._items->vector[i]->fields.Character;
+        if (!IsPlayerVoted(clientCharacter->fields.PlayerId)) {
+            MeetingHud_CmdCastVote(meetingHudStatic->Instance, clientCharacter->fields.PlayerId, targetPlayerId, 0);
+        }
+    }
+    
+}
 void KillPlayer(uint8_t playerId) {
     auto victim = GetPlayerClientById(playerId)->fields.Character;
     PlayerControl* killer = NULL;
@@ -181,6 +193,7 @@ void KillPlayer(uint8_t playerId) {
     PlayerControl_MurderPlayer(killer, victim, 0);
     PlayerControl_RpcMurderPlayer(killer, victim, 0);
 }
+
 
 void SnapToPlayer(PlayerControl* fromCharacter, PlayerControl* toCharacter)
 {
