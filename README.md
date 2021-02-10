@@ -1,2 +1,2 @@
 # AUCheatHub
-Cheats for Among Us.
+Cheats for Among Us. In pause.
